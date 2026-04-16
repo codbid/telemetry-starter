@@ -14,12 +14,12 @@ public class TelemetryAspect {
 
     private final TelemetrySender sender;
     private final HttpServletRequest request;
+    private final String serviceName;
 
-    private static final String SERVICE_NAME = "demo-service";
-
-    public TelemetryAspect(TelemetrySender sender, HttpServletRequest request) {
+    public TelemetryAspect(TelemetrySender sender, HttpServletRequest request, String serviceName) {
         this.sender = sender;
         this.request = request;
+        this.serviceName = serviceName;
     }
 
     @Around("@annotation(telemetry)")
@@ -88,7 +88,7 @@ public class TelemetryAspect {
     ) {
         return new TelemetryEvent(
                 eventType,
-                SERVICE_NAME,
+                serviceName,
                 getInstance(),
                 operation,
                 timestamp,

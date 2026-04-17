@@ -11,9 +11,11 @@ public class TelemetryEvent {
     private long durationMs;
 
     private boolean success;
+    private Integer statusCode;
     private String errorType;
 
     private Long requestSizeBytes;
+    private Long responseSizeBytes;
 
     public TelemetryEvent() {
     }
@@ -26,8 +28,10 @@ public class TelemetryEvent {
             long timestamp,
             long durationMs,
             boolean success,
+            Integer statusCode,
             String errorType,
-            Long requestSizeBytes
+            Long requestSizeBytes,
+            Long responseSizeBytes
     ) {
         this.eventType = eventType;
         this.service = service;
@@ -36,8 +40,10 @@ public class TelemetryEvent {
         this.timestamp = timestamp;
         this.durationMs = durationMs;
         this.success = success;
+        this.statusCode = statusCode;
         this.errorType = errorType;
         this.requestSizeBytes = requestSizeBytes;
+        this.responseSizeBytes = responseSizeBytes;
     }
 
     public TelemetryEventType getEventType() {
@@ -96,6 +102,14 @@ public class TelemetryEvent {
         this.success = success;
     }
 
+    public Integer getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(Integer statusCode) {
+        this.statusCode = statusCode;
+    }
+
     public String getErrorType() {
         return errorType;
     }
@@ -112,6 +126,14 @@ public class TelemetryEvent {
         this.requestSizeBytes = requestSizeBytes;
     }
 
+    public Long getResponseSizeBytes() {
+        return responseSizeBytes;
+    }
+
+    public void setResponseSizeBytes(Long responseSizeBytes) {
+        this.responseSizeBytes = responseSizeBytes;
+    }
+
     @Override
     public String toString() {
         return "TelemetryEvent{" +
@@ -122,8 +144,10 @@ public class TelemetryEvent {
                 ", timestamp=" + timestamp +
                 ", durationMs=" + durationMs +
                 ", success=" + success +
+                ", statusCode=" + statusCode +
                 ", errorType='" + errorType + '\'' +
                 ", requestSizeBytes=" + requestSizeBytes +
+                ", responseSizeBytes=" + responseSizeBytes +
                 '}';
     }
 }

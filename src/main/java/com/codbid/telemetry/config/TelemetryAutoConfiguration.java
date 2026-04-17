@@ -4,15 +4,17 @@ import com.codbid.telemetry.aspect.TelemetryAspect;
 import com.codbid.telemetry.model.TelemetryEventType;
 import com.codbid.telemetry.sender.KafkaTelemetrySender;
 import com.codbid.telemetry.sender.TelemetrySender;
+import com.codbid.telemetry.web.TelemetryFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -46,16 +48,8 @@ public class TelemetryAutoConfiguration {
     }
 
     @Bean
-    public TelemetryAspect telemetryAspect(
-            TelemetrySender sender,
-            HttpServletRequest request,
-            @Value("${spring.application.name:unknown-service}") String serviceName
-    ) {
-        return new TelemetryAspect(
-                sender,
-                request,
-                serviceName
-        );
+    public TelemetryAspect telemetryAspect() {
+        return new TelemetryAspect();
     }
 
     @Bean
@@ -114,5 +108,16 @@ public class TelemetryAutoConfiguration {
                 new DefaultKafkaProducerFactory<>(props);
 
         return new KafkaTemplate<>(factory);
+    }
+
+    @Bean
+    public FilterRegistrationBean<TelemetryFilter> telemetryFilter(
+            TelemetrySender sender,
+            @Value("${spring.application.name:unknown-service}") String serviceName
+    ) {
+        FilterRegistrationBean<TelemetryFilter> bean = new FilterRegistrationBean<>();
+        bean.setFilter(new TelemetryFilter(sender, serviceName));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
     }
 }

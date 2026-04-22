@@ -1,6 +1,6 @@
 package com.codbid.telemetry.model;
 
-public enum TelemetryEventType {
-    REQUEST,
+public enum TelemetryStatus {
+    SUCCESS,
     ERROR
 }

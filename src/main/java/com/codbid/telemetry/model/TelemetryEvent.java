@@ -1,57 +1,51 @@
 package com.codbid.telemetry.model;
 
+import java.util.Map;
+
 public class TelemetryEvent {
 
-    private TelemetryEventType eventType;
+    private String eventId;
+    private String timestamp;
+
     private String service;
-    private String instance;
+    private String environment;
+    private String instanceId;
+
     private String operation;
-
-    private long timestamp;
-    private long durationMs;
-
-    private boolean success;
+    private String component;
+    private String method;
+    private TelemetryKind kind;
+    private TelemetryStatus status;
     private Integer statusCode;
-    private String errorType;
 
-    private Long requestSizeBytes;
-    private Long responseSizeBytes;
+    private Long durationMs;
+
+    private String errorType;
+    private String errorCode;
+
+    private String traceId;
+    private String spanId;
+    private String correlationId;
+
+    private Map<String, String> tags;
 
     public TelemetryEvent() {
     }
 
-    public TelemetryEvent(
-            TelemetryEventType eventType,
-            String service,
-            String instance,
-            String operation,
-            long timestamp,
-            long durationMs,
-            boolean success,
-            Integer statusCode,
-            String errorType,
-            Long requestSizeBytes,
-            Long responseSizeBytes
-    ) {
-        this.eventType = eventType;
-        this.service = service;
-        this.instance = instance;
-        this.operation = operation;
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
-        this.durationMs = durationMs;
-        this.success = success;
-        this.statusCode = statusCode;
-        this.errorType = errorType;
-        this.requestSizeBytes = requestSizeBytes;
-        this.responseSizeBytes = responseSizeBytes;
-    }
-
-    public TelemetryEventType getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(TelemetryEventType eventType) {
-        this.eventType = eventType;
     }
 
     public String getService() {
@@ -62,12 +56,20 @@ public class TelemetryEvent {
         this.service = service;
     }
 
-    public String getInstance() {
-        return instance;
+    public String getEnvironment() {
+        return environment;
     }
 
-    public void setInstance(String instance) {
-        this.instance = instance;
+    public void setEnvironment(String environment) {
+        this.environment = environment;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     public String getOperation() {
@@ -78,28 +80,36 @@ public class TelemetryEvent {
         this.operation = operation;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public String getComponent() {
+        return component;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setComponent(String component) {
+        this.component = component;
     }
 
-    public long getDurationMs() {
-        return durationMs;
+    public String getMethod() {
+        return method;
     }
 
-    public void setDurationMs(long durationMs) {
-        this.durationMs = durationMs;
+    public void setMethod(String method) {
+        this.method = method;
     }
 
-    public boolean isSuccess() {
-        return success;
+    public TelemetryKind getKind() {
+        return kind;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    public void setKind(TelemetryKind kind) {
+        this.kind = kind;
+    }
+
+    public TelemetryStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TelemetryStatus status) {
+        this.status = status;
     }
 
     public Integer getStatusCode() {
@@ -110,6 +120,14 @@ public class TelemetryEvent {
         this.statusCode = statusCode;
     }
 
+    public Long getDurationMs() {
+        return durationMs;
+    }
+
+    public void setDurationMs(Long durationMs) {
+        this.durationMs = durationMs;
+    }
+
     public String getErrorType() {
         return errorType;
     }
@@ -118,36 +136,43 @@ public class TelemetryEvent {
         this.errorType = errorType;
     }
 
-    public Long getRequestSizeBytes() {
-        return requestSizeBytes;
+    public String getErrorCode() {
+        return errorCode;
     }
 
-    public void setRequestSizeBytes(Long requestSizeBytes) {
-        this.requestSizeBytes = requestSizeBytes;
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
     }
 
-    public Long getResponseSizeBytes() {
-        return responseSizeBytes;
+    public String getTraceId() {
+        return traceId;
     }
 
-    public void setResponseSizeBytes(Long responseSizeBytes) {
-        this.responseSizeBytes = responseSizeBytes;
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
     }
 
-    @Override
-    public String toString() {
-        return "TelemetryEvent{" +
-                "eventType='" + eventType.name() + '\'' +
-                ", service='" + service + '\'' +
-                ", instance='" + instance + '\'' +
-                ", operation='" + operation + '\'' +
-                ", timestamp=" + timestamp +
-                ", durationMs=" + durationMs +
-                ", success=" + success +
-                ", statusCode=" + statusCode +
-                ", errorType='" + errorType + '\'' +
-                ", requestSizeBytes=" + requestSizeBytes +
-                ", responseSizeBytes=" + responseSizeBytes +
-                '}';
+    public String getSpanId() {
+        return spanId;
+    }
+
+    public void setSpanId(String spanId) {
+        this.spanId = spanId;
+    }
+
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+    public Map<String, String> getTags() {
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
     }
 }

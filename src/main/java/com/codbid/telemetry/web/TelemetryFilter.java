@@ -81,6 +81,9 @@ public class TelemetryFilter implements Filter {
     ) {
         long now = System.currentTimeMillis();
         int statusCode = response.getStatus();
+        if (error != null && statusCode < 400) {
+            statusCode = 500;
+        }
 
         TelemetryStatus status = resolveStatus(statusCode, error);
 

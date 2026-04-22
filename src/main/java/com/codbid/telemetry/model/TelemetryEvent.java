@@ -175,4 +175,28 @@ public class TelemetryEvent {
     public void setTags(Map<String, String> tags) {
         this.tags = tags;
     }
+
+    @Override
+    public String toString() {
+        return "TelemetryEvent{" +
+                "eventId='" + eventId + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", service='" + service + '\'' +
+                ", environment='" + environment + '\'' +
+                ", instanceId='" + instanceId + '\'' +
+                ", operation='" + operation + '\'' +
+                ", component='" + component + '\'' +
+                ", method='" + method + '\'' +
+                ", kind=" + kind +
+                ", status=" + status +
+                ", statusCode=" + statusCode +
+                ", durationMs=" + durationMs +
+                ", errorType='" + errorType + '\'' +
+                ", errorCode='" + errorCode + '\'' +
+                ", traceId='" + traceId + '\'' +
+                ", spanId='" + spanId + '\'' +
+                ", correlationId='" + correlationId + '\'' +
+                ", tags=" + tags +
+                '}';
+    }
 }

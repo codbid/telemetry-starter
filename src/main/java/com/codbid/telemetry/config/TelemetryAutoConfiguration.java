@@ -3,12 +3,18 @@ package com.codbid.telemetry.config;
 import com.codbid.telemetry.aspect.TelemetryAspect;
 import com.codbid.telemetry.context.DefaultTelemetryContextProvider;
 import com.codbid.telemetry.context.TelemetryContextProvider;
+import com.codbid.telemetry.customizer.TelemetryEventCustomizer;
+import com.codbid.telemetry.customizer.TelemetryEventCustomizerChain;
+import com.codbid.telemetry.manual.TelemetryManual;
+import com.codbid.telemetry.manual.TelemetryManualImpl;
+import com.codbid.telemetry.model.TelemetryEvent;
 import com.codbid.telemetry.sender.KafkaTelemetrySender;
 import com.codbid.telemetry.sender.TelemetrySender;
 import com.codbid.telemetry.web.TelemetryFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,7 +26,9 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -62,9 +70,10 @@ public class TelemetryAutoConfiguration {
     @Bean
     public TelemetryAspect telemetryAspect(
             TelemetrySender sender,
-            TelemetryContextProvider contextProvider
+            TelemetryContextProvider contextProvider,
+            TelemetryEventCustomizerChain customizerChain
     ) {
-        return new TelemetryAspect(sender, contextProvider);
+        return new TelemetryAspect(sender, contextProvider, customizerChain);
     }
 
     @Bean
@@ -118,11 +127,34 @@ public class TelemetryAutoConfiguration {
     @Bean
     public FilterRegistrationBean<TelemetryFilter> telemetryFilter(
             TelemetrySender sender,
-            TelemetryContextProvider contextProvider
+            TelemetryContextProvider contextProvider,
+            TelemetryEventCustomizerChain customizerChain
     ) {
         FilterRegistrationBean<TelemetryFilter> bean = new FilterRegistrationBean<>();
-        bean.setFilter(new TelemetryFilter(sender, contextProvider));
+        bean.setFilter(new TelemetryFilter(sender, contextProvider, customizerChain));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return bean;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public TelemetryEventCustomizerChain telemetryEventCustomizerChain(
+            ObjectProvider<List<TelemetryEventCustomizer>> customizersProvider
+    ) {
+        List<TelemetryEventCustomizer> customizers = customizersProvider.getIfAvailable();
+        if (customizers == null) {
+            customizers = Collections.emptyList();
+        }
+
+        return new TelemetryEventCustomizerChain(customizers);
+    }
+
+    @Bean
+    public TelemetryManual telemetryManual(
+            TelemetrySender sender,
+            TelemetryContextProvider contextProvider,
+            TelemetryEventCustomizerChain customizerChain
+    ) {
+        return new TelemetryManualImpl(sender, contextProvider, customizerChain);
     }
 }

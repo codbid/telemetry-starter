@@ -1,6 +1,7 @@
 package com.codbid.telemetry.web;
 
 import com.codbid.telemetry.context.TelemetryContextProvider;
+import com.codbid.telemetry.customizer.TelemetryEventCustomizerChain;
 import com.codbid.telemetry.model.TelemetryEvent;
 import com.codbid.telemetry.model.TelemetryKind;
 import com.codbid.telemetry.model.TelemetryStatus;
@@ -24,10 +25,16 @@ public class TelemetryFilter implements Filter {
 
     private final TelemetrySender sender;
     private final TelemetryContextProvider contextProvider;
+    private final TelemetryEventCustomizerChain customizerChain;
 
-    public TelemetryFilter(TelemetrySender sender, TelemetryContextProvider contextProvider) {
+    public TelemetryFilter(
+            TelemetrySender sender,
+            TelemetryContextProvider contextProvider,
+            TelemetryEventCustomizerChain customizerChain
+    ) {
         this.sender = sender;
         this.contextProvider = contextProvider;
+        this.customizerChain = customizerChain;
     }
 
     @Override
@@ -116,7 +123,8 @@ public class TelemetryFilter implements Filter {
         tags.put("http.status", String.valueOf(statusCode));
         event.setTags(tags);
 
-        sender.send(event);
+        TelemetryEvent customized = customizerChain.customize(event);
+        sender.send(customized);
     }
 
     private String resolveTraceId(HttpServletRequest request) {

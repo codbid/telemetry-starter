@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class TelemetryManualImpl implements TelemetryManual {
 
@@ -35,7 +36,7 @@ public class TelemetryManualImpl implements TelemetryManual {
 
     @Override
     public void success(String operation, Map<String, String> tags) {
-        sendManualEvent(operation, TelemetryStatus.SUCCESS, null, tags);
+        sendManualEvent(operation, TelemetryStatus.SUCCESS, null, tags, null);
     }
 
     @Override
@@ -45,15 +46,72 @@ public class TelemetryManualImpl implements TelemetryManual {
 
     @Override
     public void error(String operation, Throwable throwable, Map<String, String> tags) {
-        sendManualEvent(operation, TelemetryStatus.ERROR, throwable, tags);
+        sendManualEvent(operation, TelemetryStatus.ERROR, throwable, tags, null);
+    }
+
+    @Override
+    public <T> T track(String operation, Supplier<T> action) {
+        return track(operation, new HashMap<>(), action);
+    }
+
+    @Override
+    public <T> T track(String operation, Map<String, String> tags, Supplier<T> action) {
+        long startNanos = System.nanoTime();
+        Throwable error = null;
+
+        try {
+            return action.get();
+        } catch (Throwable ex) {
+            error = ex;
+            throw ex;
+        } finally {
+            Long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
+            sendManualEvent(
+                    operation,
+                    error == null ? TelemetryStatus.SUCCESS : TelemetryStatus.ERROR,
+                    error,
+                    tags,
+                    durationMs
+            );
+        }
+    }
+
+    @Override
+    public void track(String operation, Runnable action) {
+        track(operation, new HashMap<>(), action);
+    }
+
+    @Override
+    public void track(String operation, Map<String, String> tags, Runnable action) {
+        long startNanos = System.nanoTime();
+        Throwable error = null;
+
+        try {
+            action.run();
+        } catch (Throwable ex) {
+            error = ex;
+            throw ex;
+        } finally {
+            Long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
+            sendManualEvent(
+                    operation,
+                    error == null ? TelemetryStatus.SUCCESS : TelemetryStatus.ERROR,
+                    error,
+                    tags,
+                    durationMs
+            );
+        }
     }
 
     private void sendManualEvent(
             String operation,
             TelemetryStatus status,
             Throwable throwable,
-            Map<String, String> tags
+            Map<String, String> tags,
+            Long durationMs
     ) {
+        long now = System.currentTimeMillis();
+
         String traceId = contextProvider.getTraceId();
         if (traceId == null || traceId.trim().isEmpty()) {
             traceId = UUID.randomUUID().toString();
@@ -66,7 +124,7 @@ public class TelemetryManualImpl implements TelemetryManual {
 
         TelemetryEvent event = new TelemetryEvent();
         event.setEventId(UUID.randomUUID().toString());
-        event.setTimestamp(Instant.now().toString());
+        event.setTimestamp(Instant.ofEpochMilli(now).toString());
 
         event.setService(contextProvider.getService());
         event.setEnvironment(contextProvider.getEnvironment());
@@ -79,7 +137,7 @@ public class TelemetryManualImpl implements TelemetryManual {
         event.setStatus(status);
         event.setStatusCode(null);
 
-        event.setDurationMs(null);
+        event.setDurationMs(durationMs);
         event.setErrorType(throwable != null ? throwable.getClass().getSimpleName() : null);
         event.setErrorCode(null);
 

@@ -35,7 +35,7 @@ public class TelemetryAspect {
 
     @Around("@annotation(telemetry)")
     public Object around(ProceedingJoinPoint joinPoint, Telemetry telemetry) throws Throwable {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
         String methodName = joinPoint.getSignature().getName();
         String componentName = resolveComponent(joinPoint, telemetry);
@@ -87,7 +87,7 @@ public class TelemetryAspect {
         event.setKind(resolveKind(telemetry));
         event.setStatus(error == null ? TelemetryStatus.SUCCESS : TelemetryStatus.ERROR);
 
-        event.setDurationMs(now - start);
+        event.setDurationMs((System.nanoTime() - start) / 1_000_000);
         event.setErrorType(error != null ? error.getClass().getSimpleName() : null);
         event.setErrorCode(null);
         event.setStatusCode(null);

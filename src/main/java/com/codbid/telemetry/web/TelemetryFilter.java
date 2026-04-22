@@ -49,7 +49,7 @@ public class TelemetryFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
         String traceId = resolveTraceId(httpRequest);
         String correlationId = resolveCorrelationId(httpRequest, traceId);
@@ -109,7 +109,7 @@ public class TelemetryFilter implements Filter {
         event.setStatus(status);
         event.setStatusCode(statusCode);
 
-        event.setDurationMs(now - start);
+        event.setDurationMs((System.nanoTime() - start) / 1_000_000);
         event.setErrorType(error != null ? error.getClass().getSimpleName() : null);
         event.setErrorCode(null);
 
